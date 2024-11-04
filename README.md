@@ -1,6 +1,6 @@
 # Cross-Platform File Manager
 
-![File Manager Screenshot](assets/screenshot.png)
+![File Manager Screenshot](https://github.com/shaileshtripathi93/File-Manager/blob/main/Screenshot%202024-11-04%20144229.png)
 
 ## Overview
 The Cross-Platform File Manager is a simple yet functional web application built using HTML, CSS, and JavaScript. This application allows users to manage files and folders with features like uploading files, creating folders, renaming files, and deleting files. It also supports drag-and-drop functionality for ease of use.
