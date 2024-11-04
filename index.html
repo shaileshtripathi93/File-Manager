@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cross-Platform File Manager</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .toolbar {
+            margin-bottom: 20px;
+        }
+
+        .file-list {
+            border: 1px solid #ddd;
+            padding: 10px;
+            min-height: 200px;
+            background-color: #fafafa;
+        }
+
+        .file-item {
+            padding: 5px;
+            border: 1px solid #ddd;
+            margin: 5px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .file-item button {
+            margin-left: 5px;
+        }
+
+        .current-path {
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>File Manager</h1>
+        <div class="toolbar">
+            <input type="file" id="fileInput" multiple>
+            <button id="uploadButton">Upload</button>
+            <button id="createFolderButton">Create Folder</button>
+            <button id="deleteButton">Delete</button>
+        </div>
+        <div id="currentPath" class="current-path"></div>
+        <div id="fileList" class="file-list" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+    </div>
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const uploadButton = document.getElementById('uploadButton');
+        const createFolderButton = document.getElementById('createFolderButton');
+        const fileList = document.getElementById('fileList');
+        const currentPath = document.getElementById('currentPath');
+
+        let currentFolder = 'Root';
+        let folders = {
+            'Root': [],
+        };
+
+        function renderFile(file) {
+            const fileItem = document.createElement('div');
+            fileItem.className = 'file-item';
+            fileItem.innerText = file.name;
+
+            // Create rename button
+            const renameButton = document.createElement('button');
+            renameButton.innerText = 'Rename';
+            renameButton.onclick = () => renameFile(fileItem, file);
+
+            // Create delete button
+            const deleteButton = document.createElement('button');
+            deleteButton.innerText = 'Delete';
+            deleteButton.onclick = () => deleteFile(file.name);
+
+            fileItem.appendChild(renameButton);
+            fileItem.appendChild(deleteButton);
+            fileList.appendChild(fileItem);
+        }
+
+        // Function to delete a file
+        function deleteFile(fileName) {
+            folders[currentFolder] = folders[currentFolder].filter(f => f.name !== fileName);
+            renderCurrentFolder();
+        }
+
+        // Function to rename a file
+        function renameFile(fileItem, file) {
+            const newName = prompt('Enter new name:', file.name);
+            if (newName) {
+                const fileIndex = folders[currentFolder].findIndex(f => f.name === file.name);
+                if (fileIndex !== -1) {
+                    folders[currentFolder][fileIndex].name = newName;
+                    renderCurrentFolder();
+                }
+            }
+        }
+
+        // Function to render the files in the current folder
+        function renderCurrentFolder() {
+            fileList.innerHTML = '';
+            folders[currentFolder].forEach(file => renderFile(file));
+            currentPath.innerText = `Current Folder: ${currentFolder}`;
+        }
+
+        // Upload button event listener
+        uploadButton.addEventListener('click', () => {
+            const files = fileInput.files;
+            for (let i = 0; i < files.length; i++) {
+                const newFile = {
+                    name: files[i].name,
+                    size: files[i].size,
+                    type: files[i].type
+                };
+                folders[currentFolder].push(newFile);
+            }
+            renderCurrentFolder();
+            fileInput.value = '';
+        });
+
+        // Create folder button event listener
+        createFolderButton.addEventListener('click', () => {
+            const folderName = prompt('Enter folder name:');
+            if (folderName && !folders[folderName]) {
+                folders[folderName] = [];
+                renderCurrentFolder();
+            } else {
+                alert('Folder already exists or invalid name.');
+            }
+        });
+
+        // Allow drop event handler
+        function allowDrop(event) {
+            event.preventDefault();
+        }
+
+        // Drop event handler
+        function drop(event) {
+            event.preventDefault();
+            const files = event.dataTransfer.files;
+            for (let i = 0; i < files.length; i++) {
+                const newFile = {
+                    name: files[i].name,
+                    size: files[i].size,
+                    type: files[i].type
+                };
+                folders[currentFolder].push(newFile);
+            }
+            renderCurrentFolder();
+        }
+
+        // Initial folder structure
+        renderCurrentFolder();
+    </script>
+</body>
+</html>
